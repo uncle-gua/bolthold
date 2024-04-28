@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"sort"
 
-	bolt "go.etcd.io/bbolt"
+	"go.etcd.io/bbolt"
 )
 
 // AggregateResult allows you to access the results of an aggregate query
@@ -165,7 +165,7 @@ func (a *AggregateResult) Count() int {
 func (s *Store) FindAggregate(dataType interface{}, query *Query, groupBy ...string) ([]*AggregateResult, error) {
 	var result []*AggregateResult
 	var err error
-	err = s.Bolt().View(func(tx *bolt.Tx) error {
+	err = s.Bolt().View(func(tx *bbolt.Tx) error {
 		result, err = s.TxFindAggregate(tx, dataType, query, groupBy...)
 		return err
 	})
@@ -179,7 +179,7 @@ func (s *Store) FindAggregate(dataType interface{}, query *Query, groupBy ...str
 
 // TxFindAggregate is the same as FindAggregate, but you specify your own transaction
 // groupBy is optional
-func (s *Store) TxFindAggregate(tx *bolt.Tx, dataType interface{}, query *Query,
+func (s *Store) TxFindAggregate(tx *bbolt.Tx, dataType interface{}, query *Query,
 	groupBy ...string) ([]*AggregateResult, error) {
 	return s.aggregateQuery(tx, dataType, query, groupBy...)
 }

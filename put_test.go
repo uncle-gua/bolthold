@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/timshannon/bolthold"
-	bolt "go.etcd.io/bbolt"
+	"github.com/uncle-gua/bolthold"
+	"go.etcd.io/bbolt"
 )
 
 func TestInsert(t *testing.T) {
@@ -60,7 +60,7 @@ func TestInsertReadTxn(t *testing.T) {
 			Created:  time.Now(),
 		}
 
-		err := store.Bolt().View(func(tx *bolt.Tx) error {
+		err := store.Bolt().View(func(tx *bbolt.Tx) error {
 			return store.TxInsert(tx, key, data)
 		})
 
@@ -68,7 +68,7 @@ func TestInsertReadTxn(t *testing.T) {
 			t.Fatalf("Inserting into a read only transaction didn't fail!")
 		}
 
-		err = store.Bolt().Update(func(tx *bolt.Tx) error {
+		err = store.Bolt().Update(func(tx *bbolt.Tx) error {
 			return store.TxInsert(tx, key, data)
 		})
 		if err != nil {
@@ -142,7 +142,7 @@ func TestUpdateReadTxn(t *testing.T) {
 			Created:  time.Now(),
 		}
 
-		err := store.Bolt().View(func(tx *bolt.Tx) error {
+		err := store.Bolt().View(func(tx *bbolt.Tx) error {
 			return store.TxUpdate(tx, key, data)
 		})
 
@@ -150,7 +150,7 @@ func TestUpdateReadTxn(t *testing.T) {
 			t.Fatalf("Updating into a read only transaction didn't fail!")
 		}
 
-		err = store.Bolt().Update(func(tx *bolt.Tx) error {
+		err = store.Bolt().Update(func(tx *bbolt.Tx) error {
 
 			err = store.TxInsert(tx, key, data)
 			if err != nil {
@@ -224,14 +224,14 @@ func TestUpsertReadTxn(t *testing.T) {
 			Created:  time.Now(),
 		}
 
-		err := store.Bolt().View(func(tx *bolt.Tx) error {
+		err := store.Bolt().View(func(tx *bbolt.Tx) error {
 			return store.TxUpsert(tx, key, data)
 		})
 
 		if err == nil {
 			t.Fatalf("Updating into a read only transaction didn't fail!")
 		}
-		err = store.Bolt().Update(func(tx *bolt.Tx) error {
+		err = store.Bolt().Update(func(tx *bbolt.Tx) error {
 			return store.TxUpsert(tx, key, data)
 		})
 

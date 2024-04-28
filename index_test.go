@@ -7,12 +7,12 @@ package bolthold_test
 import (
 	"testing"
 
-	bh "github.com/timshannon/bolthold"
-	bolt "go.etcd.io/bbolt"
+	"github.com/uncle-gua/bolthold"
+	"go.etcd.io/bbolt"
 )
 
 func TestIndexSlice(t *testing.T) {
-	testWrap(t, func(store *bh.Store, t *testing.T) {
+	testWrap(t, func(store *bolthold.Store, t *testing.T) {
 		var testData = []ItemTest{
 			{
 				Key:  0,
@@ -42,7 +42,7 @@ func TestIndexSlice(t *testing.T) {
 
 		b := store.Bolt()
 
-		ok(t, b.View(func(tx *bolt.Tx) error {
+		ok(t, b.View(func(tx *bbolt.Tx) error {
 			bucket := tx.Bucket([]byte("_index:ItemTest:Tags"))
 			assert(t, bucket != nil, "No index bucket found for Tags index")
 
@@ -67,7 +67,7 @@ func Test85SliceIndex(t *testing.T) {
 		Categories []string `boltholdSliceIndex:"Categories"`
 	}
 
-	testWrap(t, func(store *bh.Store, t *testing.T) {
+	testWrap(t, func(store *bolthold.Store, t *testing.T) {
 		e1 := &Event{Id: 1, Type: "Type1", Categories: []string{"Cat 1", "Cat 2"}}
 		e2 := &Event{Id: 2, Type: "Type1", Categories: []string{"Cat 3"}}
 
@@ -75,7 +75,7 @@ func Test85SliceIndex(t *testing.T) {
 		ok(t, store.Insert(e2.Id, e2))
 
 		var es []*Event
-		ok(t, store.Find(&es, bh.Where("Categories").Contains("Cat 1").Index("Categories")))
+		ok(t, store.Find(&es, bolthold.Where("Categories").Contains("Cat 1").Index("Categories")))
 		equals(t, len(es), 1)
 	})
 }
@@ -87,14 +87,14 @@ func Test87SliceIndex(t *testing.T) {
 		Categories []string `boltholdSliceIndex:"Categories"`
 	}
 
-	testWrap(t, func(store *bh.Store, t *testing.T) {
+	testWrap(t, func(store *bolthold.Store, t *testing.T) {
 		e1 := &Event{Id: 1, Type: "Type1", Categories: []string{"Cat 1", "Cat 2"}}
 		e2 := &Event{Id: 2, Type: "Type1", Categories: []string{"Cat 3"}}
 
 		ok(t, store.Insert(e1.Id, e1))
 		ok(t, store.Insert(e2.Id, e2))
 		var es []*Event
-		ok(t, store.Find(&es, bh.Where("Categories").ContainsAny("Cat 1").Index("Categories")))
+		ok(t, store.Find(&es, bolthold.Where("Categories").ContainsAny("Cat 1").Index("Categories")))
 		equals(t, len(es), 1)
 	})
 }
@@ -106,7 +106,7 @@ func TestSliceIndexWithPointers(t *testing.T) {
 		Categories []*string `boltholdSliceIndex:"Categories"`
 	}
 
-	testWrap(t, func(store *bh.Store, t *testing.T) {
+	testWrap(t, func(store *bolthold.Store, t *testing.T) {
 		cat1 := "Cat 1"
 		cat2 := "Cat 2"
 		cat3 := "Cat 3"
@@ -118,7 +118,7 @@ func TestSliceIndexWithPointers(t *testing.T) {
 		ok(t, store.Insert(e2.Id, e2))
 
 		var es []*Event
-		ok(t, store.Find(&es, bh.Where("Categories").ContainsAll("Cat 1").Index("Categories")))
+		ok(t, store.Find(&es, bolthold.Where("Categories").ContainsAll("Cat 1").Index("Categories")))
 		equals(t, len(es), 1)
 	})
 }

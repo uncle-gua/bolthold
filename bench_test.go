@@ -10,8 +10,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/timshannon/bolthold"
-	bolt "go.etcd.io/bbolt"
+	"github.com/uncle-gua/bolthold"
+	"go.etcd.io/bbolt"
 )
 
 type BenchData struct {
@@ -71,7 +71,7 @@ func BenchmarkRawInsert(b *testing.B) {
 	benchWrap(b, nil, func(store *bolthold.Store, b *testing.B) {
 		bucket := []byte("test bucket")
 
-		err = store.Bolt().Update(func(tx *bolt.Tx) error {
+		err = store.Bolt().Update(func(tx *bbolt.Tx) error {
 			_, err := tx.CreateBucket(bucket)
 			return err
 		})
@@ -83,7 +83,7 @@ func BenchmarkRawInsert(b *testing.B) {
 
 		for i := 0; i < b.N; i++ {
 
-			err = store.Bolt().Update(func(tx *bolt.Tx) error {
+			err = store.Bolt().Update(func(tx *bbolt.Tx) error {
 				return tx.Bucket(bucket).Put(id(), data)
 			})
 			if err != nil {

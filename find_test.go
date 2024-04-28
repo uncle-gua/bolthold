@@ -11,8 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/timshannon/bolthold"
-	bh "github.com/timshannon/bolthold"
+	"github.com/uncle-gua/bolthold"
 )
 
 type ItemTest struct {
@@ -1237,7 +1236,7 @@ func TestIssue137SliceIndexWithPointers(t *testing.T) {
 		Categories []string `boltholdSliceIndex:"Categories"`
 	}
 
-	testWrap(t, func(store *bh.Store, t *testing.T) {
+	testWrap(t, func(store *bolthold.Store, t *testing.T) {
 		cat1 := "Cat 1"
 		cat2 := "Cat 2"
 		cat3 := "Cat 3"
@@ -1249,7 +1248,7 @@ func TestIssue137SliceIndexWithPointers(t *testing.T) {
 		ok(t, store.Insert(e2.Id, e2))
 
 		var es []*Event
-		query := bh.Where("Categories").ContainsAll(cat1, cat2).Index("Categories")
+		query := bolthold.Where("Categories").ContainsAll(cat1, cat2).Index("Categories")
 		ok(t, store.Find(&es, query))
 		equals(t, 1, len(es))
 	})

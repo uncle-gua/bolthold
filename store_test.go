@@ -14,8 +14,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/timshannon/bolthold"
-	bolt "go.etcd.io/bbolt"
+	"github.com/uncle-gua/bolthold"
+	"go.etcd.io/bbolt"
 )
 
 func TestOpen(t *testing.T) {
@@ -48,7 +48,7 @@ func TestRemoveIndex(t *testing.T) {
 
 		iName := indexName("ItemTest", "Category")
 
-		ok(t, store.Bolt().View(func(tx *bolt.Tx) error {
+		ok(t, store.Bolt().View(func(tx *bbolt.Tx) error {
 			if tx.Bucket(iName) == nil {
 				return fmt.Errorf("index %s doesn't exist", iName)
 			}
@@ -57,7 +57,7 @@ func TestRemoveIndex(t *testing.T) {
 
 		ok(t, store.RemoveIndex(item, "Category"))
 
-		ok(t, store.Bolt().View(func(tx *bolt.Tx) error {
+		ok(t, store.Bolt().View(func(tx *bbolt.Tx) error {
 			if tx.Bucket(iName) != nil {
 				return fmt.Errorf("index %s wasn't removed", iName)
 			}
@@ -74,14 +74,14 @@ func TestReIndex(t *testing.T) {
 		iName := indexName("ItemTest", "Category")
 
 		ok(t, store.RemoveIndex(item, "Category"))
-		ok(t, store.Bolt().View(func(tx *bolt.Tx) error {
+		ok(t, store.Bolt().View(func(tx *bbolt.Tx) error {
 			if tx.Bucket(iName) != nil {
 				return fmt.Errorf("index %s wasn't removed", iName)
 			}
 			return nil
 		}))
 		ok(t, store.ReIndex(&item, nil))
-		ok(t, store.Bolt().View(func(tx *bolt.Tx) error {
+		ok(t, store.Bolt().View(func(tx *bbolt.Tx) error {
 			if tx.Bucket(iName) == nil {
 				return fmt.Errorf("index %s wasn't rebuilt", iName)
 			}
@@ -93,7 +93,7 @@ func TestReIndex(t *testing.T) {
 func TestIndexExists(t *testing.T) {
 	testWrap(t, func(store *bolthold.Store, t *testing.T) {
 		insertTestData(t, store)
-		ok(t, store.Bolt().View(func(tx *bolt.Tx) error {
+		ok(t, store.Bolt().View(func(tx *bbolt.Tx) error {
 			if !store.IndexExists(tx, "ItemTest", "Category") {
 				return fmt.Errorf("index %s doesn't exist", "ItemTest:Category")
 			}
@@ -114,7 +114,7 @@ func TestReIndexWithCopy(t *testing.T) {
 
 		ok(t, store.ReIndex(&item, []byte("ItemTest")))
 
-		ok(t, store.Bolt().View(func(tx *bolt.Tx) error {
+		ok(t, store.Bolt().View(func(tx *bbolt.Tx) error {
 			if tx.Bucket(iName) == nil {
 				return fmt.Errorf("index %s wasn't rebuilt", iName)
 			}

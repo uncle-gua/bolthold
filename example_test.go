@@ -10,8 +10,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/timshannon/bolthold"
-	bolt "go.etcd.io/bbolt"
+	"github.com/uncle-gua/bolthold"
+	"go.etcd.io/bbolt"
 )
 
 type Item struct {
@@ -56,7 +56,7 @@ func Example() {
 
 	// insert the data in one transaction
 
-	err = store.Bolt().Update(func(tx *bolt.Tx) error {
+	err = store.Bolt().Update(func(tx *bbolt.Tx) error {
 		for i := range data {
 			err := store.TxInsert(tx, data[i].ID, data[i])
 			if err != nil {

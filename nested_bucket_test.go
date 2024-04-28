@@ -10,11 +10,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/timshannon/bolthold"
-	bolt "go.etcd.io/bbolt"
+	"github.com/uncle-gua/bolthold"
+	"go.etcd.io/bbolt"
 )
 
-func testWrapWithBucket(t *testing.T, tests func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T)) {
+func testWrapWithBucket(t *testing.T, tests func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T)) {
 	filename := tempfile()
 	store, err := bolthold.Open(filename, 0666, nil)
 	if err != nil {
@@ -28,8 +28,8 @@ func testWrapWithBucket(t *testing.T, tests func(store *bolthold.Store, bucket *
 	defer store.Close()
 	defer os.Remove(filename)
 
-	var bucket *bolt.Bucket
-	err = store.Bolt().Update(func(tx *bolt.Tx) error {
+	var bucket *bbolt.Bucket
+	err = store.Bolt().Update(func(tx *bbolt.Tx) error {
 		bucket, err = tx.CreateBucketIfNotExists([]byte("test bucket parent"))
 		if err != nil {
 			return err
@@ -43,7 +43,7 @@ func testWrapWithBucket(t *testing.T, tests func(store *bolthold.Store, bucket *
 	}
 }
 
-func testWrapWithReadOnlyBucket(t *testing.T, tests func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T)) {
+func testWrapWithReadOnlyBucket(t *testing.T, tests func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T)) {
 	filename := tempfile()
 	store, err := bolthold.Open(filename, 0666, nil)
 	if err != nil {
@@ -57,8 +57,8 @@ func testWrapWithReadOnlyBucket(t *testing.T, tests func(store *bolthold.Store, 
 	defer store.Close()
 	defer os.Remove(filename)
 
-	var bucket *bolt.Bucket
-	err = store.Bolt().Update(func(tx *bolt.Tx) error {
+	var bucket *bbolt.Bucket
+	err = store.Bolt().Update(func(tx *bbolt.Tx) error {
 		bucket, err = tx.CreateBucketIfNotExists([]byte("test bucket parent"))
 		if err != nil {
 			return err
@@ -69,7 +69,7 @@ func testWrapWithReadOnlyBucket(t *testing.T, tests func(store *bolthold.Store, 
 	if err != nil {
 		t.Fatalf("Error creating bucket %s: %s", filename, err)
 	}
-	err = store.Bolt().View(func(tx *bolt.Tx) error {
+	err = store.Bolt().View(func(tx *bbolt.Tx) error {
 		bucket = tx.Bucket([]byte("test bucket parent"))
 
 		tests(store, bucket, t)
@@ -78,7 +78,7 @@ func testWrapWithReadOnlyBucket(t *testing.T, tests func(store *bolthold.Store, 
 }
 
 func TestGetFromBucket(t *testing.T) {
-	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		key := "testKey"
 		data := &ItemTest{
 			Name:    "Test Name",
@@ -107,7 +107,7 @@ func TestGetFromBucket(t *testing.T) {
 	})
 }
 
-func insertBucketTestData(t *testing.T, store *bolthold.Store, bucket *bolt.Bucket) {
+func insertBucketTestData(t *testing.T, store *bolthold.Store, bucket *bbolt.Bucket) {
 	for i := range testData {
 		err := store.InsertIntoBucket(bucket, testData[i].Key, testData[i])
 		if err != nil {
@@ -117,7 +117,7 @@ func insertBucketTestData(t *testing.T, store *bolthold.Store, bucket *bolt.Buck
 }
 
 func TestFindInBucket(t *testing.T) {
-	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		insertBucketTestData(t, store, bucket)
 		for _, tst := range testResults {
 			t.Run(tst.name, func(t *testing.T) {
@@ -157,7 +157,7 @@ func TestFindInBucket(t *testing.T) {
 }
 
 func TestBucketCount(t *testing.T) {
-	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		insertBucketTestData(t, store, bucket)
 		for _, tst := range testResults {
 			t.Run(tst.name, func(t *testing.T) {
@@ -175,7 +175,7 @@ func TestBucketCount(t *testing.T) {
 }
 
 func TestFindOneInBucket(t *testing.T) {
-	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		insertBucketTestData(t, store, bucket)
 		for _, tst := range testResults {
 			t.Run(tst.name, func(t *testing.T) {
@@ -199,7 +199,7 @@ func TestFindOneInBucket(t *testing.T) {
 }
 
 func TestInsertBucket(t *testing.T) {
-	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		key := "testKey"
 		data := &ItemTest{
 			Name:     "Test Name",
@@ -236,7 +236,7 @@ func TestInsertBucket(t *testing.T) {
 }
 
 func TestInsertBucketReadTxn(t *testing.T) {
-	testWrapWithReadOnlyBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithReadOnlyBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		key := "testKey"
 		data := &ItemTest{
 			Name:     "Test Name",
@@ -244,7 +244,7 @@ func TestInsertBucketReadTxn(t *testing.T) {
 			Created:  time.Now(),
 		}
 
-		err := store.Bolt().View(func(tx *bolt.Tx) error {
+		err := store.Bolt().View(func(tx *bbolt.Tx) error {
 			return store.InsertIntoBucket(bucket, key, data)
 		})
 
@@ -255,7 +255,7 @@ func TestInsertBucketReadTxn(t *testing.T) {
 }
 
 func TestUpdateBucket(t *testing.T) {
-	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		key := "testKey"
 		data := &ItemTest{
 			Name:     "Test Name",
@@ -309,7 +309,7 @@ func TestUpdateBucket(t *testing.T) {
 }
 
 func TestUpdateBucketReadTxn(t *testing.T) {
-	testWrapWithReadOnlyBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithReadOnlyBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		key := "testKey"
 		data := &ItemTest{
 			Name:     "Test Name",
@@ -317,7 +317,7 @@ func TestUpdateBucketReadTxn(t *testing.T) {
 			Created:  time.Now(),
 		}
 
-		err := store.Bolt().View(func(tx *bolt.Tx) error {
+		err := store.Bolt().View(func(tx *bbolt.Tx) error {
 			return store.UpdateBucket(bucket, key, data)
 		})
 
@@ -328,7 +328,7 @@ func TestUpdateBucketReadTxn(t *testing.T) {
 }
 
 func TestUpsertBucket(t *testing.T) {
-	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		key := "testKey"
 		data := &ItemTest{
 			Name:     "Test Name",
@@ -377,7 +377,7 @@ func TestUpsertBucket(t *testing.T) {
 }
 
 func TestUpsertBucketReadTxn(t *testing.T) {
-	testWrapWithReadOnlyBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithReadOnlyBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		key := "testKey"
 		data := &ItemTest{
 			Name:     "Test Name",
@@ -385,7 +385,7 @@ func TestUpsertBucketReadTxn(t *testing.T) {
 			Created:  time.Now(),
 		}
 
-		err := store.Bolt().View(func(tx *bolt.Tx) error {
+		err := store.Bolt().View(func(tx *bbolt.Tx) error {
 			return store.UpsertBucket(bucket, key, data)
 		})
 
@@ -398,7 +398,7 @@ func TestUpsertBucketReadTxn(t *testing.T) {
 func TestUpdateMatchingBucket(t *testing.T) {
 	for _, tst := range testResults {
 		t.Run(tst.name, func(t *testing.T) {
-			testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+			testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 				insertBucketTestData(t, store, bucket)
 
 				err := store.UpdateMatchingInBucket(bucket, &ItemTest{}, tst.query,
@@ -462,7 +462,7 @@ func TestUpdateMatchingBucket(t *testing.T) {
 }
 
 func TestDeleteBucket(t *testing.T) {
-	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		key := "testKey"
 		data := &ItemTest{
 			Name:    "Test Name",
@@ -490,14 +490,14 @@ func TestDeleteBucket(t *testing.T) {
 }
 
 func TestDeleteBucketReadTxn(t *testing.T) {
-	testWrapWithReadOnlyBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithReadOnlyBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		key := "testKey"
 		data := &ItemTest{
 			Name:    "Test Name",
 			Created: time.Now(),
 		}
 
-		err := store.Bolt().View(func(tx *bolt.Tx) error {
+		err := store.Bolt().View(func(tx *bbolt.Tx) error {
 			return store.DeleteFromBucket(bucket, key, data)
 		})
 
@@ -510,7 +510,7 @@ func TestDeleteBucketReadTxn(t *testing.T) {
 func TestDeleteMatchingBucket(t *testing.T) {
 	for _, tst := range testResults {
 		t.Run(tst.name, func(t *testing.T) {
-			testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+			testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 
 				insertBucketTestData(t, store, bucket)
 

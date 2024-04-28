@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/timshannon/bolthold"
-	bolt "go.etcd.io/bbolt"
+	"github.com/uncle-gua/bolthold"
+	"go.etcd.io/bbolt"
 )
 
 func TestForEach(t *testing.T) {
@@ -51,7 +51,7 @@ func TestForEach(t *testing.T) {
 }
 
 func TestForEachInBucket(t *testing.T) {
-	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bolt.Bucket, t *testing.T) {
+	testWrapWithBucket(t, func(store *bolthold.Store, bucket *bbolt.Bucket, t *testing.T) {
 		insertBucketTestData(t, store, bucket)
 		for _, tst := range testResults {
 			t.Run(tst.name, func(t *testing.T) {

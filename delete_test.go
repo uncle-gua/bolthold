@@ -9,9 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/timshannon/bolthold"
-	bh "github.com/timshannon/bolthold"
-	bolt "go.etcd.io/bbolt"
+	"github.com/uncle-gua/bolthold"
+	"go.etcd.io/bbolt"
 )
 
 func TestDelete(t *testing.T) {
@@ -138,7 +137,7 @@ func TestDeleteReadTxn(t *testing.T) {
 			Created: time.Now(),
 		}
 
-		err := store.Bolt().View(func(tx *bolt.Tx) error {
+		err := store.Bolt().View(func(tx *bbolt.Tx) error {
 			return store.TxDelete(tx, key, data)
 		})
 
@@ -146,7 +145,7 @@ func TestDeleteReadTxn(t *testing.T) {
 			t.Fatalf("Deleting from a read only transaction didn't fail!")
 		}
 
-		err = store.Bolt().Update(func(tx *bolt.Tx) error {
+		err = store.Bolt().Update(func(tx *bbolt.Tx) error {
 			err = store.TxInsert(tx, key, data)
 			if err != nil {
 				t.Fatalf("Inserting into a writable transaction failed: %s", err)
@@ -192,7 +191,7 @@ func TestDeleteEOFIssue116(t *testing.T) {
 
 		for i := 1; i < 5; i++ {
 			err := store.Delete("key", empty)
-			if err != nil && !errors.Is(err, bh.ErrNotFound) {
+			if err != nil && !errors.Is(err, bolthold.ErrNotFound) {
 				t.Fatalf("unexpected error after delete #%d: %v", i, err)
 			}
 		}

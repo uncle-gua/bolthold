@@ -9,26 +9,26 @@ import (
 	"reflect"
 	"strings"
 
-	bolt "go.etcd.io/bbolt"
+	"go.etcd.io/bbolt"
 )
 
 // ErrNotFound is returned when no data is found for the given key
-var ErrNotFound = errors.New("No data found for this key")
+var ErrNotFound = errors.New("no data found for this key")
 
 // Get retrieves a value from bolthold and puts it into result.  Result must be a pointer
 func (s *Store) Get(key, result interface{}) error {
-	return s.Bolt().View(func(tx *bolt.Tx) error {
+	return s.Bolt().View(func(tx *bbolt.Tx) error {
 		return s.TxGet(tx, key, result)
 	})
 }
 
 // TxGet allows you to pass in your own bolt transaction to retrieve a value from the bolthold and puts it into result
-func (s *Store) TxGet(tx *bolt.Tx, key, result interface{}) error {
+func (s *Store) TxGet(tx *bbolt.Tx, key, result interface{}) error {
 	return s.get(tx, key, result)
 }
 
 // GetFromBucket allows you to specify the parent bucket for retrieving records
-func (s *Store) GetFromBucket(parent *bolt.Bucket, key, result interface{}) error {
+func (s *Store) GetFromBucket(parent *bbolt.Bucket, key, result interface{}) error {
 	return s.get(parent, key, result)
 }
 
@@ -85,43 +85,43 @@ func (s *Store) get(source BucketSource, key, result interface{}) error {
 // The result of the query will be appended to the passed in result slice, rather than the passed in slice being
 // emptied.
 func (s *Store) Find(result interface{}, query *Query) error {
-	return s.Bolt().View(func(tx *bolt.Tx) error {
+	return s.Bolt().View(func(tx *bbolt.Tx) error {
 		return s.TxFind(tx, result, query)
 	})
 }
 
 // TxFind allows you to pass in your own bolt transaction to retrieve a set of values from the bolthold
-func (s *Store) TxFind(tx *bolt.Tx, result interface{}, query *Query) error {
+func (s *Store) TxFind(tx *bbolt.Tx, result interface{}, query *Query) error {
 	return s.findQuery(tx, result, query)
 }
 
 // FindInBucket allows you to specify a parent bucke to search in
-func (s *Store) FindInBucket(parent *bolt.Bucket, result interface{}, query *Query) error {
+func (s *Store) FindInBucket(parent *bbolt.Bucket, result interface{}, query *Query) error {
 	return s.findQuery(parent, result, query)
 }
 
 // FindOne returns a single record, and so result is NOT a slice, but an pointer to a struct, if no record is found
 // that matches the query, then it returns ErrNotFound
 func (s *Store) FindOne(result interface{}, query *Query) error {
-	return s.Bolt().View(func(tx *bolt.Tx) error {
+	return s.Bolt().View(func(tx *bbolt.Tx) error {
 		return s.TxFindOne(tx, result, query)
 	})
 }
 
 // TxFindOne allows you to pass in your own bolt transaction to retrieve a single record from the bolthold
-func (s *Store) TxFindOne(tx *bolt.Tx, result interface{}, query *Query) error {
+func (s *Store) TxFindOne(tx *bbolt.Tx, result interface{}, query *Query) error {
 	return s.findOneQuery(tx, result, query)
 }
 
 // FindOneInBucket allows you to pass in your own bucket to retrieve a single record from the bolthold
-func (s *Store) FindOneInBucket(parent *bolt.Bucket, result interface{}, query *Query) error {
+func (s *Store) FindOneInBucket(parent *bbolt.Bucket, result interface{}, query *Query) error {
 	return s.findOneQuery(parent, result, query)
 }
 
 // Count returns the current record count for the passed in datatype
 func (s *Store) Count(dataType interface{}, query *Query) (int, error) {
 	count := 0
-	err := s.Bolt().View(func(tx *bolt.Tx) error {
+	err := s.Bolt().View(func(tx *bbolt.Tx) error {
 		var txErr error
 		count, txErr = s.TxCount(tx, dataType, query)
 		return txErr
@@ -130,12 +130,12 @@ func (s *Store) Count(dataType interface{}, query *Query) (int, error) {
 }
 
 // TxCount returns the current record count from within the given transaction for the passed in datatype
-func (s *Store) TxCount(tx *bolt.Tx, dataType interface{}, query *Query) (int, error) {
+func (s *Store) TxCount(tx *bbolt.Tx, dataType interface{}, query *Query) (int, error) {
 	return s.countQuery(tx, dataType, query)
 }
 
 // CountInBucket returns the current record count from within the given parent bucket
-func (s *Store) CountInBucket(parent *bolt.Bucket, dataType interface{}, query *Query) (int, error) {
+func (s *Store) CountInBucket(parent *bbolt.Bucket, dataType interface{}, query *Query) (int, error) {
 	return s.countQuery(parent, dataType, query)
 }
 
@@ -144,17 +144,17 @@ func (s *Store) CountInBucket(parent *bolt.Bucket, dataType interface{}, query *
 // set in memory, similar to database cursors
 // Return an error from fn, will stop the cursor from iterating
 func (s *Store) ForEach(query *Query, fn interface{}) error {
-	return s.Bolt().View(func(tx *bolt.Tx) error {
+	return s.Bolt().View(func(tx *bbolt.Tx) error {
 		return s.TxForEach(tx, query, fn)
 	})
 }
 
 // TxForEach is the same as ForEach but you get to specify your transaction
-func (s *Store) TxForEach(tx *bolt.Tx, query *Query, fn interface{}) error {
+func (s *Store) TxForEach(tx *bbolt.Tx, query *Query, fn interface{}) error {
 	return s.forEach(tx, query, fn)
 }
 
 // ForEachInBucket is the same as ForEach but you get to specify your parent bucket
-func (s *Store) ForEachInBucket(parent *bolt.Bucket, query *Query, fn interface{}) error {
+func (s *Store) ForEachInBucket(parent *bbolt.Bucket, query *Query, fn interface{}) error {
 	return s.forEach(parent, query, fn)
 }
