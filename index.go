@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"sort"
 
-	bolt "go.etcd.io/bbolt"
+	"go.etcd.io/bbolt"
 )
 
 // BoltholdIndexTag is the struct tag used to define a field as indexable for a bolthold
@@ -175,7 +175,7 @@ func (v *keyList) in(key []byte) bool {
 
 // seekCursor attempts to save reads by seeking the cursor past values it doesn't need to compare since keys
 // are stored in order
-func (s *Store) seekCursor(cursor *bolt.Cursor, criteria []*Criterion) (key, value []byte) {
+func (s *Store) seekCursor(cursor *bbolt.Cursor, criteria []*Criterion) (key, value []byte) {
 	firstKey, firstValue := cursor.First()
 
 	if len(criteria) != 1 || criteria[0].negate {
@@ -198,9 +198,9 @@ func (s *Store) seekCursor(cursor *bolt.Cursor, criteria []*Criterion) (key, val
 
 type iterator struct {
 	keyCache    [][]byte
-	dataBucket  *bolt.Bucket
-	indexCursor *bolt.Cursor
-	nextKeys    func(bool, *bolt.Cursor) ([][]byte, error)
+	dataBucket  *bbolt.Bucket
+	indexCursor *bbolt.Cursor
+	nextKeys    func(bool, *bbolt.Cursor) ([][]byte, error)
 	prepCursor  bool
 	err         error
 }
@@ -222,7 +222,7 @@ func (s *Store) newIterator(source BucketSource, typeName string, query *Query) 
 	if query.index == Key && !query.badIndex {
 		iter.indexCursor = source.Bucket([]byte(typeName)).Cursor()
 
-		iter.nextKeys = func(prepCursor bool, cursor *bolt.Cursor) ([][]byte, error) {
+		iter.nextKeys = func(prepCursor bool, cursor *bbolt.Cursor) ([][]byte, error) {
 			var nKeys [][]byte
 
 			for len(nKeys) < iteratorKeyMinCacheSize {
@@ -260,7 +260,7 @@ func (s *Store) newIterator(source BucketSource, typeName string, query *Query) 
 		return iter
 	}
 
-	var iBucket *bolt.Bucket
+	var iBucket *bbolt.Bucket
 	if !query.badIndex {
 		iBucket = source.Bucket(indexBucketName(typeName, query.index))
 	}
@@ -271,7 +271,7 @@ func (s *Store) newIterator(source BucketSource, typeName string, query *Query) 
 
 		iter.indexCursor = source.Bucket([]byte(typeName)).Cursor()
 
-		iter.nextKeys = func(prepCursor bool, cursor *bolt.Cursor) ([][]byte, error) {
+		iter.nextKeys = func(prepCursor bool, cursor *bbolt.Cursor) ([][]byte, error) {
 			var nKeys [][]byte
 
 			for len(nKeys) < iteratorKeyMinCacheSize {
@@ -298,7 +298,7 @@ func (s *Store) newIterator(source BucketSource, typeName string, query *Query) 
 	//   indexed field
 	iter.indexCursor = iBucket.Cursor()
 
-	iter.nextKeys = func(prepCursor bool, cursor *bolt.Cursor) ([][]byte, error) {
+	iter.nextKeys = func(prepCursor bool, cursor *bbolt.Cursor) ([][]byte, error) {
 		var nKeys [][]byte
 
 		for len(nKeys) < iteratorKeyMinCacheSize {
