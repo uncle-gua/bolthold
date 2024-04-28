@@ -46,6 +46,9 @@ func Example() {
 
 	filename := tempfile()
 	store, err := bolthold.Open(filename, 0666, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer store.Close()
 	defer os.Remove(filename)
 

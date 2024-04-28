@@ -46,7 +46,7 @@ func (c *Criterion) compare(rowValue, criterionValue interface{}, currentRow int
 	if _, ok := criterionValue.(Field); ok {
 		fVal := reflect.ValueOf(currentRow).Elem().FieldByName(string(criterionValue.(Field)))
 		if !fVal.IsValid() {
-			return 0, fmt.Errorf("The field %s does not exist in the type %s", criterionValue,
+			return 0, fmt.Errorf("the field %s does not exist in the type %s", criterionValue,
 				reflect.TypeOf(currentRow))
 		}
 

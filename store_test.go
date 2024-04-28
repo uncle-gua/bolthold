@@ -129,6 +129,10 @@ func TestAlternateEncoding(t *testing.T) {
 		Encoder: json.Marshal,
 		Decoder: json.Unmarshal,
 	})
+	if err != nil {
+		t.Error(err)
+	}
+
 	defer store.Close()
 	defer os.Remove(filename)
 
@@ -161,6 +165,10 @@ func TestPerStoreEncoding(t *testing.T) {
 		Encoder: json.Marshal,
 		Decoder: json.Unmarshal,
 	})
+	if err != nil {
+		t.Error(err)
+	}
+
 	defer jsnStore.Close()
 	defer os.Remove(jsnFilename)
 
@@ -168,6 +176,10 @@ func TestPerStoreEncoding(t *testing.T) {
 
 	gobFilename := tempfile()
 	gobStore, err := bolthold.Open(gobFilename, 0666, &bolthold.Options{})
+	if err != nil {
+		t.Error(err)
+	}
+
 	defer gobStore.Close()
 	defer os.Remove(gobFilename)
 
@@ -216,6 +228,10 @@ func TestGetUnknownType(t *testing.T) {
 		Encoder: json.Marshal,
 		Decoder: json.Unmarshal,
 	})
+	if err != nil {
+		t.Error(err)
+	}
+
 	defer store.Close()
 	defer os.Remove(filename)
 
@@ -278,7 +294,7 @@ type Issue115 struct{ Name string }
 func (i *Issue115) Type() string { return "Item" }
 func (i *Issue115) Indexes() map[string]bolthold.Index {
 	return map[string]bolthold.Index{
-		"Name": bolthold.Index{
+		"Name": {
 			IndexFunc: func(_ string, value interface{}) ([]byte, error) {
 				// If the upsert wants to delete an existing value first,
 				// value could be a **Item instead of *Item

@@ -98,7 +98,8 @@ func canUseIndex(criteria []*Criterion) bool {
 func Slice(value interface{}) []interface{} {
 	slc := reflect.ValueOf(value)
 
-	s := make([]interface{}, slc.Len(), slc.Len()) // panics if value is not slice, array or map
+	length := slc.Len()
+	s := make([]interface{}, length) // panics if value is not slice, array or map
 	for i := range s {
 		s[i] = slc.Index(i).Interface()
 	}
@@ -275,7 +276,7 @@ func fieldValue(value reflect.Value, field string) (interface{}, error) {
 
 	if field == "" {
 		if !value.IsValid() {
-			return reflect.Value{}, fmt.Errorf("The field %s does not exist in the type %s", field,
+			return reflect.Value{}, fmt.Errorf("the field %s does not exist in the type %s", field,
 				value.Interface())
 		}
 		return value.Interface(), nil
@@ -295,7 +296,7 @@ func fieldValue(value reflect.Value, field string) (interface{}, error) {
 	})
 
 	if !ok {
-		return reflect.Value{}, fmt.Errorf("The field %s does not exist in the type %s", field,
+		return reflect.Value{}, fmt.Errorf("the field %s does not exist in the type %s", field,
 			value.Interface())
 	}
 

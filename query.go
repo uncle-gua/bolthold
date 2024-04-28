@@ -27,7 +27,7 @@ func (s *Store) runQuery(source BucketSource, dataType interface{}, query *Query
 	}
 
 	if query.index != "" && source.Bucket(indexBucketName(storer.Type(), query.index)) == nil {
-		return fmt.Errorf("The index %s does not exist", query.index)
+		return fmt.Errorf("the index %s does not exist", query.index)
 	}
 
 	tp := dataType
@@ -138,7 +138,7 @@ func (s *Store) runQuerySort(source BucketSource, dataType interface{}, query *Q
 			}
 
 			if !found {
-				return fmt.Errorf("The field %s does not exist in the type %s", field, query.dataType)
+				return fmt.Errorf("the field %s does not exist in the type %s", field, query.dataType)
 			}
 			current = structField.Type
 		}
