@@ -10,12 +10,12 @@ import (
 	"reflect"
 	"strings"
 
-	bolt "go.etcd.io/bbolt"
+	"go.etcd.io/bbolt"
 )
 
 // Store is a bolthold wrapper around a bolt DB
 type Store struct {
-	db     *bolt.DB
+	db     *bbolt.DB
 	encode EncodeFunc
 	decode DecodeFunc
 }
@@ -25,14 +25,14 @@ type Store struct {
 type Options struct {
 	Encoder EncodeFunc
 	Decoder DecodeFunc
-	*bolt.Options
+	*bbolt.Options
 }
 
 // Open opens or creates a bolthold file.
 func Open(filename string, mode os.FileMode, options *Options) (*Store, error) {
 	options = fillOptions(options)
 
-	db, err := bolt.Open(filename, mode, options.Options)
+	db, err := bbolt.Open(filename, mode, options.Options)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func fillOptions(options *Options) *Options {
 }
 
 // Bolt returns the underlying Bolt DB the bolthold is based on
-func (s *Store) Bolt() *bolt.DB {
+func (s *Store) Bolt() *bbolt.DB {
 	return s.db
 }
 
@@ -77,7 +77,7 @@ func (s *Store) Close() error {
 func (s *Store) ReIndex(exampleType interface{}, bucketName []byte) error {
 	storer := s.newStorer(exampleType)
 
-	return s.Bolt().Update(func(tx *bolt.Tx) error {
+	return s.Bolt().Update(func(tx *bbolt.Tx) error {
 		indexes := storer.Indexes()
 		// delete existing indexes
 		// TODO: Remove indexes not specified the storer index list?
@@ -85,7 +85,7 @@ func (s *Store) ReIndex(exampleType interface{}, bucketName []byte) error {
 
 		for indexName := range indexes {
 			err := tx.DeleteBucket(indexBucketName(storer.Type(), indexName))
-			if err != nil && err != bolt.ErrBucketNotFound {
+			if err != nil && err != bbolt.ErrBucketNotFound {
 				return err
 			}
 		}
@@ -94,7 +94,7 @@ func (s *Store) ReIndex(exampleType interface{}, bucketName []byte) error {
 
 		for indexName := range sliceIndexes {
 			err := tx.DeleteBucket(indexBucketName(storer.Type(), indexName))
-			if err != nil && err != bolt.ErrBucketNotFound {
+			if err != nil && err != bbolt.ErrBucketNotFound {
 				return err
 			}
 		}
@@ -143,7 +143,7 @@ func (s *Store) ReIndex(exampleType interface{}, bucketName []byte) error {
 // RemoveIndex removes an index from the store.
 func (s *Store) RemoveIndex(dataType interface{}, indexName string) error {
 	storer := s.newStorer(dataType)
-	return s.Bolt().Update(func(tx *bolt.Tx) error {
+	return s.Bolt().Update(func(tx *bbolt.Tx) error {
 		return tx.DeleteBucket(indexBucketName(storer.Type(), indexName))
 
 	})
@@ -337,8 +337,8 @@ func findIndexValue(name string, value interface{}, tag string) interface{} {
 // Buckets and Transactions both implement BucketSource.  This allows for choosing a specific bucket or transaction
 // when running a query
 type BucketSource interface {
-	Bucket(name []byte) *bolt.Bucket
-	CreateBucketIfNotExists(name []byte) (*bolt.Bucket, error)
+	Bucket(name []byte) *bbolt.Bucket
+	CreateBucketIfNotExists(name []byte) (*bbolt.Bucket, error)
 }
 
 func newElemType(datatype interface{}) interface{} {

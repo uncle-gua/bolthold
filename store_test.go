@@ -7,7 +7,6 @@ package bolthold_test
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -276,7 +275,7 @@ func testWrap(t *testing.T, tests func(store *bolthold.Store, t *testing.T)) {
 
 // tempfile returns a temporary file path.
 func tempfile() string {
-	f, err := ioutil.TempFile("", "bolthold-")
+	f, err := os.CreateTemp("", "bolthold-")
 	if err != nil {
 		panic(err)
 	}
